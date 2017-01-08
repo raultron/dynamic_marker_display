@@ -31,3 +31,5 @@
 #qtcreator
 *.user
 
+/bin/dynamic_marker_display
+/bin/dynamic_marker_display_debug
