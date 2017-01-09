@@ -17,8 +17,13 @@ Project{
             'src/ofApp.h',
         ]
 
+        // This project is using addons.make to include the addons
+        // since it was imported from old code. To change it to include
+        // the addons from the qbs file change the following lines to
+        // the list of used addons in array format. eg:
+        //
         of.addons: [
-
+             'ofxLibwebsockets',
         ]
 
         // additional flags for the project. the of module sets some
