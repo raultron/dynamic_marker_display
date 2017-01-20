@@ -2,32 +2,50 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    aruco_marker.load("images/aruco_34x34cm_ID00.jpg");
+    aruco_sigle_ID88.load("images/aruco_34x34cm_ID00.jpg");
+    aruco_multi_ID00.load("images/aruco_multi_ID00.png");
+    whycon_ID00.load("images/whycon_ID00.png");
     ofBackground(255,255,255);
     ofSetFrameRate(60); // if vertical sync is off, we can go a bit fast... this caps the framerate at 60fps.
     ofSetVerticalSync(true);
     client.connect("riker", 9090);
     client.addListener(this);
+    topicSubscribe("/dynamic_marker/set_marker", "dynamic_marker/set_marker");
+    topicAdvertise("/dynamic_marker/set_marker_response", "dynamic_marker/set_marker_response");
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
 
-//    if (marker_size < 100){
-//        step = -step;
-//    }
-//    else if (marker_size > 300){
-//        step = -step;
-//    }
-//    marker_size += step;
+
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    int marker_size_pixels = marker_size / pixel_pitch;
+    int marker_size_pixels = marker_size_ / pixel_pitch;
     int posx = (ofGetWindowWidth()/2)-marker_size_pixels/2;
     int posy = (ofGetWindowHeight()/2)-marker_size_pixels/2;
-    aruco_marker.draw(posx, posy, marker_size_pixels, marker_size_pixels);
+
+    // Decide which marker family image to draw and what ID:
+    if (marker_family_ == whycon){
+
+        whycon_ID00.draw(posx, posy, marker_size_pixels, marker_size_pixels);
+
+    } else if (marker_family_ == aruco_single){
+
+        aruco_sigle_ID88.draw(posx, posy, marker_size_pixels, marker_size_pixels);
+        //!TODO implement ID selection
+
+    } else if (marker_family_ == aruco_multi){
+
+        aruco_multi_ID00.draw(posx, posy, marker_size_pixels, marker_size_pixels);
+        //!TODO implement ID selection
+
+    } else{
+        cout<<"Error. Requested an undefined Marker Family, using default (aruco single)"<< endl;
+        aruco_sigle_ID88.draw(posx, posy, marker_size_pixels, marker_size_pixels);
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -56,20 +74,21 @@ void ofApp::onMessage( ofxLibwebsockets::Event& args ){
     if ( !args.json.isNull() ){
         std::string op = args.json.get("op", "empty" ).asString();
         std::string topic = args.json.get("topic", "error").asString();
-        //cout<<"op value: "<<op<<endl;
 
         if(op == "publish"){
-            if(topic == "/marker_size" ){
-                int requested_marker_size = args.json.get("msg", "error").get("data", "error").asInt();
-                cout<<"Data value: "<<requested_marker_size<<endl;
+            if(topic == "/dynamic_marker/set_marker" ){
+                Json::Value msg = args.json.get("msg", "error");
 
-                setMarquerSize(requested_marker_size);
-                publishMarkerStatus("OK");
-                draw();
+                int marker_family = msg["marker_family"].asInt();
+                int marker_size  = msg["marker_size"].asInt();
+                int marker_id = msg["marker_id"].asInt();
+
+                cout<<"Setting the new marker config"<<endl;
+                set_marker(marker_family, marker_size, marker_id);
             }
         }
     } else {
-        cout<<"Received message with no JSON formatting"<<args.message<<endl;
+        cout<<"ERROR. Received a message with no JSON formatting"<<args.message<<endl;
     }
 }
 
@@ -86,19 +105,6 @@ void ofApp::topicSubscribe(std::string topic, std::string type){
     msg["topic"] = topic;
     msg["type"] = type;
     client.send(msg.toStyledString());
-
-    /*
-    { "op": "subscribe",
-      (optional) "id": <string>,
-      "topic": <string>,
-      (optional) "type": <string>,
-      (optional) "throttle_rate": <int>,
-      (optional) "queue_length": <int>,
-      (optional) "fragment_size": <int>,
-      (optional) "compression": <string>
-    }
-    */
-
 }
 
 //--------------------------------------------------------------
@@ -112,40 +118,54 @@ void ofApp::topicAdvertise(std::string topic, std::string type){
 }
 
 //--------------------------------------------------------------
-void ofApp::setMarquerSize(int requested_marker_size){
+void ofApp::set_marker(int marker_family, int marker_size, int marker_id){
+    bool result = true;
+    std::string message = "OK";
     float max_width_mm = pixel_pitch*ofGetWindowWidth();
     float max_height_mm = pixel_pitch*ofGetWindowHeight();
-    float max_size = std::min(max_width_mm,max_height_mm)-10;
-
     //cout<<"Screen Width: "<< ofGetWindowWidth() <<endl;
     //cout<<"Screen Height: "<< ofGetWindowHeight() <<endl;
     //cout<<"Screen Width mm: "<< max_width_mm <<endl;
     //cout<<"Screen Height mm: "<< max_height_mm <<endl;
 
+    cout<<"Setting marker family"<<endl;
+    marker_family_ = marker_family;
 
-    if (requested_marker_size >= max_size){
+    cout<<"Setting the marker size"<<endl;
+    //!TODO this 10 is an ugly hack to leave a white border around the marker (experiment different values)
+    //! another idea is to make the marker inverted (black is now white and viceversa) so we take advantage
+    //! of the black border of the laptop and the marker may be bigger. Using tud_img_prep is possible to
+    //! invert the colors again
+
+
+    float max_size = std::min(max_width_mm,max_height_mm)-10;
+    if (marker_size >= max_size){
         marker_size = max_size;
-        cout<<"Error requested a Marker Size greater than maximum value"<< endl;
-        cout<<"Setting the maximum"<< endl;
-    } else if (requested_marker_size < 0.0){
+        result = false;
+        message = "Error. Requested a Marker Size greater than max value, Setting the max";
+        cout<< message.c_str() << endl;
+        //!TODO this should be sent back to decision_process in ROS
+    } else if (marker_size < 0.0){
         marker_size = 0.0;
-        cout<<"Error requested a Marker Size smaller than minimum value"<< endl;
-        cout<<"Setting the minimum"<< endl;
-    } else {
-        marker_size = requested_marker_size;
+        result = false;
+        message = "Error. Requested a Marker Size smaller than min value, Setting the min";
+        cout<< message.c_str() << endl;
     }
-    cout<<"New Marker Size: "<< requested_marker_size <<endl;
+    marker_size_ = marker_size;
+    cout<<"New Marker Size: "<< marker_size_ <<endl;
+
+    set_marker_response(result, message);
 }
 
 //--------------------------------------------------------------
-void ofApp::publishMarkerStatus(std::string status){
+void ofApp::set_marker_response(bool result, std::string message){
     Json::Value pub_msg, msg;
     pub_msg["op"] = "publish";
-    pub_msg["topic"] = "/dynamic_marker_status";
-    pub_msg["type"] = "std_msgs/String";
-    pub_msg["msg"] = msg;
+    pub_msg["topic"] = "/dynamic_marker/set_marker_response";
+    pub_msg["type"] = "/dynamic_marker/set_marker_response";
 
-    msg["data"] = status;
+    msg["result"] = result;
+    msg["message"] = message;
 
     pub_msg["msg"] = msg;
 
@@ -154,8 +174,7 @@ void ofApp::publishMarkerStatus(std::string status){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    topicSubscribe("/marker_size", "std_msgs/Int32");
-    topicAdvertise("/dynamic_marker_status", "std_msgs/String");
+
 }
 
 //--------------------------------------------------------------
@@ -165,12 +184,6 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
-//    float pixel_pitch = 0.270; // in milimeters
-//    // update mouse x and y percent when the mouse moves
-//    float mouseXPercent = float(x) / ofGetWidth();
-//    float mouseYPercent = float(y) / ofGetHeight();
-//    marker_size = mouseXPercent*MARKER_BASE_SIZE;
-//    //std::cout << mouseXPercent << std::endl;;
 
 }
 

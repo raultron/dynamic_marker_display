@@ -35,19 +35,23 @@ public:
     //ROS related methods
     void topicSubscribe(std::string topic, std::string type);
     void topicAdvertise(std::string topic, std::string type);
-    void publishMarkerStatus(std::string status);
 
     //marker related variables and methods
-    void setMarquerSize(int requested_marker_size);
+    enum marker_family_enum_ { whycon, aruco_single, aruco_multi, pitag};
+    void set_marker(int marker_family, int marker_size, int marker_id);
+    void set_marker_response(bool result, std::string message);
 
-    ofImage aruco_marker;
-    float marker_size = MARKER_BASE_SIZE;
-    //float pixel_pitch = 0.270; // in milimeters (RIKER) at max resolution
-    float pixel_pitch = 0.1211; // in milimeters (ATLAS) at max resolution
+    ofImage aruco_sigle_ID88;
+    ofImage aruco_multi_ID00;
+    ofImage whycon_ID00;
+    int marker_family_ = aruco_single;
+    int marker_id_ = 88;
+    int marker_size_ = MARKER_BASE_SIZE;
+    float pixel_pitch = 0.270; // in milimeters (RIKER) at max resolution
+    //float pixel_pitch = 0.1211; // in milimeters (ATLAS) at max resolution
 
     ofxLibwebsockets::Client client;
-
-
-
 };
+
+
 
