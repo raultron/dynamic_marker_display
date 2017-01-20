@@ -38,8 +38,8 @@ public:
 
     //marker related variables and methods
     enum marker_family_enum_ { whycon, aruco_single, aruco_multi, pitag};
-    void set_marker(int marker_family, int marker_size, int marker_id);
-    void set_marker_response(bool result, std::string message);
+    void set_marker(int marker_family, int marker_size, int marker_id, int message_id);
+    void set_marker_response(bool result, std::string message, int message_id);
 
     ofImage aruco_sigle_ID88;
     ofImage aruco_multi_ID00;

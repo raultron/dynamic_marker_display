@@ -82,9 +82,10 @@ void ofApp::onMessage( ofxLibwebsockets::Event& args ){
                 int marker_family = msg["marker_family"].asInt();
                 int marker_size  = msg["marker_size"].asInt();
                 int marker_id = msg["marker_id"].asInt();
+                int message_id = msg["message_id"].asInt();
 
                 cout<<"Setting the new marker config"<<endl;
-                set_marker(marker_family, marker_size, marker_id);
+                set_marker(marker_family, marker_size, marker_id, message_id);
             }
         }
     } else {
@@ -118,7 +119,7 @@ void ofApp::topicAdvertise(std::string topic, std::string type){
 }
 
 //--------------------------------------------------------------
-void ofApp::set_marker(int marker_family, int marker_size, int marker_id){
+void ofApp::set_marker(int marker_family, int marker_size, int marker_id, int message_id){
     bool result = true;
     std::string message = "OK";
     float max_width_mm = pixel_pitch*ofGetWindowWidth();
@@ -154,16 +155,17 @@ void ofApp::set_marker(int marker_family, int marker_size, int marker_id){
     marker_size_ = marker_size;
     cout<<"New Marker Size: "<< marker_size_ <<endl;
 
-    set_marker_response(result, message);
+    set_marker_response(result, message, message_id);
 }
 
 //--------------------------------------------------------------
-void ofApp::set_marker_response(bool result, std::string message){
+void ofApp::set_marker_response(bool result, std::string message, int message_id){
     Json::Value pub_msg, msg;
     pub_msg["op"] = "publish";
     pub_msg["topic"] = "/dynamic_marker/set_marker_response";
     pub_msg["type"] = "/dynamic_marker/set_marker_response";
 
+    msg["message_id"] = message_id;
     msg["result"] = result;
     msg["message"] = message;
 
