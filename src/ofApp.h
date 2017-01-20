@@ -4,7 +4,7 @@
 #include "ofxLibwebsockets.h"
 #include <json/json.h>
 
-#define MARKER_BASE_SIZE 200;  //In milimeters
+#define MARKER_BASE_SIZE 150;  //In milimeters
 class ofApp : public ofBaseApp{
 
 public:
@@ -35,6 +35,7 @@ public:
     //ROS related methods
     void topicSubscribe(std::string topic, std::string type);
     void topicAdvertise(std::string topic, std::string type);
+    void publishMarkerStatus(std::string status);
 
     //marker related variables and methods
     void setMarquerSize(int requested_marker_size);

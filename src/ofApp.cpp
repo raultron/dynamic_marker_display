@@ -6,7 +6,7 @@ void ofApp::setup(){
     ofBackground(255,255,255);
     ofSetFrameRate(60); // if vertical sync is off, we can go a bit fast... this caps the framerate at 60fps.
     ofSetVerticalSync(true);
-    client.connect("127.0.0.1", 9090);
+    client.connect("riker", 9090);
     client.addListener(this);
 }
 
@@ -64,6 +64,8 @@ void ofApp::onMessage( ofxLibwebsockets::Event& args ){
                 cout<<"Data value: "<<requested_marker_size<<endl;
 
                 setMarquerSize(requested_marker_size);
+                publishMarkerStatus("OK");
+                draw();
             }
         }
     } else {
@@ -113,7 +115,7 @@ void ofApp::topicAdvertise(std::string topic, std::string type){
 void ofApp::setMarquerSize(int requested_marker_size){
     float max_width_mm = pixel_pitch*ofGetWindowWidth();
     float max_height_mm = pixel_pitch*ofGetWindowHeight();
-    float max_size = std::min(max_width_mm,max_height_mm)-20;
+    float max_size = std::min(max_width_mm,max_height_mm)-10;
 
     //cout<<"Screen Width: "<< ofGetWindowWidth() <<endl;
     //cout<<"Screen Height: "<< ofGetWindowHeight() <<endl;
@@ -133,6 +135,21 @@ void ofApp::setMarquerSize(int requested_marker_size){
         marker_size = requested_marker_size;
     }
     cout<<"New Marker Size: "<< requested_marker_size <<endl;
+}
+
+//--------------------------------------------------------------
+void ofApp::publishMarkerStatus(std::string status){
+    Json::Value pub_msg, msg;
+    pub_msg["op"] = "publish";
+    pub_msg["topic"] = "/dynamic_marker_status";
+    pub_msg["type"] = "std_msgs/String";
+    pub_msg["msg"] = msg;
+
+    msg["data"] = status;
+
+    pub_msg["msg"] = msg;
+
+    client.send(pub_msg.toStyledString());
 }
 
 //--------------------------------------------------------------
