@@ -2,9 +2,10 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    aruco_sigle_ID88.load("images/aruco_34x34cm_ID00.jpg");
-    aruco_multi_ID00.load("images/aruco_multi_ID00.png");
-    whycon_ID00.load("images/whycon_ID00.png");
+    aruco_single_ID88_.load("images/aruco_34x34cm_ID00.png");
+    aruco_single_ID00_.load("images/aruco_34x34cm_ID88.png");
+    aruco_multi_.load("images/aruco_34x34cm_ID88.png");
+    whycon_ID00_.load("images/whycon_outer150_inner70.png");
     ofBackground(255,255,255);
     ofSetFrameRate(60); // if vertical sync is off, we can go a bit fast... this caps the framerate at 60fps.
     ofSetVerticalSync(true);
@@ -29,21 +30,27 @@ void ofApp::draw(){
     // Decide which marker family image to draw and what ID:
     if (marker_family_ == whycon){
 
-        whycon_ID00.draw(posx, posy, marker_size_pixels, marker_size_pixels);
+        whycon_ID00_.draw(posx, posy, marker_size_pixels, marker_size_pixels);
 
     } else if (marker_family_ == aruco_single){
 
-        aruco_sigle_ID88.draw(posx, posy, marker_size_pixels, marker_size_pixels);
-        //!TODO implement ID selection
+        if(marker_id_ == 00){
+            aruco_single_ID00_.draw(posx, posy, marker_size_pixels, marker_size_pixels);
+        } else if(marker_id_ == 88){
+            aruco_single_ID88_.draw(posx, posy, marker_size_pixels, marker_size_pixels);
+        } else{
+            cout<<"Error. Requested an undefined Marker ID for Aruco Single, using default (aruco single)"<< endl;
+            aruco_single_ID88_.draw(posx, posy, marker_size_pixels, marker_size_pixels);
+        }
 
     } else if (marker_family_ == aruco_multi){
 
-        aruco_multi_ID00.draw(posx, posy, marker_size_pixels, marker_size_pixels);
+        aruco_multi_.draw(posx, posy, marker_size_pixels, marker_size_pixels);
         //!TODO implement ID selection
 
     } else{
         cout<<"Error. Requested an undefined Marker Family, using default (aruco single)"<< endl;
-        aruco_sigle_ID88.draw(posx, posy, marker_size_pixels, marker_size_pixels);
+        aruco_single_ID88_.draw(posx, posy, marker_size_pixels, marker_size_pixels);
     }
 
 }

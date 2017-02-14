@@ -4,7 +4,7 @@
 #include "ofxLibwebsockets.h"
 #include <json/json.h>
 
-#define MARKER_BASE_SIZE 150;  //In milimeters
+#define MARKER_BASE_SIZE 0.15;  //In meters
 class ofApp : public ofBaseApp{
 
 public:
@@ -41,14 +41,15 @@ public:
     void set_marker(int marker_family, int marker_size, int marker_id, int message_id);
     void set_marker_response(bool result, std::string message, int message_id);
 
-    ofImage aruco_sigle_ID88;
-    ofImage aruco_multi_ID00;
-    ofImage whycon_ID00;
+    ofImage aruco_single_ID88_;
+    ofImage aruco_single_ID00_;
+    ofImage aruco_multi_;
+    ofImage whycon_ID00_;
     int marker_family_ = aruco_single;
-    int marker_id_ = 88;
+    int marker_id_ = 00;
     int marker_size_ = MARKER_BASE_SIZE;
-    float pixel_pitch = 0.270; // in milimeters (RIKER) at max resolution
-    //float pixel_pitch = 0.1211; // in milimeters (ATLAS) at max resolution
+    //float pixel_pitch = 0.270; // in milimeters (RIKER) at max resolution
+    float pixel_pitch = 0.1211; // in milimeters (ATLAS) at max resolution
 
     ofxLibwebsockets::Client client;
 };
