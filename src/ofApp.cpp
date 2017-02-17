@@ -2,8 +2,8 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    aruco_single_ID88_.load("images/aruco_34x34cm_ID00.png");
-    aruco_single_ID00_.load("images/aruco_34x34cm_ID88.png");
+    aruco_single_ID88_.load("images/aruco_34x34cm_ID88.png");
+    aruco_single_ID00_.load("images/aruco_34x34cm_ID00.jpg");
     aruco_multi_.load("images/aruco_34x34cm_ID88.png");
     whycon_ID00_.load("images/whycon_outer150_inner70.png");
     ofBackground(255,255,255);
@@ -23,7 +23,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    int marker_size_pixels = marker_size_ / pixel_pitch;
+    int marker_size_pixels = marker_size_ / pixel_pitch_mm_;
     int posx = (ofGetWindowWidth()/2)-marker_size_pixels/2;
     int posy = (ofGetWindowHeight()/2)-marker_size_pixels/2;
 
@@ -87,7 +87,7 @@ void ofApp::onMessage( ofxLibwebsockets::Event& args ){
                 Json::Value msg = args.json.get("msg", "error");
 
                 int marker_family = msg["marker_family"].asInt();
-                int marker_size  = msg["marker_size"].asInt();
+                int marker_size  = msg["marker_size"].asDouble()*1000; //from meters to milimiters
                 int marker_id = msg["marker_id"].asInt();
                 int message_id = msg["message_id"].asInt();
 
@@ -129,17 +129,19 @@ void ofApp::topicAdvertise(std::string topic, std::string type){
 void ofApp::set_marker(int marker_family, int marker_size, int marker_id, int message_id){
     bool result = true;
     std::string message = "OK";
-    float max_width_mm = pixel_pitch*ofGetWindowWidth();
-    float max_height_mm = pixel_pitch*ofGetWindowHeight();
+    float max_width_mm = pixel_pitch_mm_*ofGetWindowWidth();
+    float max_height_mm = pixel_pitch_mm_*ofGetWindowHeight();
     //cout<<"Screen Width: "<< ofGetWindowWidth() <<endl;
     //cout<<"Screen Height: "<< ofGetWindowHeight() <<endl;
     //cout<<"Screen Width mm: "<< max_width_mm <<endl;
     //cout<<"Screen Height mm: "<< max_height_mm <<endl;
+    cout<<"Setting marker ID: "<< marker_id << endl;
+    marker_id_ = marker_id;
 
-    cout<<"Setting marker family"<<endl;
+    cout<<"Setting marker family: "<< marker_family << endl;
     marker_family_ = marker_family;
 
-    cout<<"Setting the marker size"<<endl;
+    cout<<"Setting the marker size: "<< marker_size << endl;
     //!TODO this 10 is an ugly hack to leave a white border around the marker (experiment different values)
     //! another idea is to make the marker inverted (black is now white and viceversa) so we take advantage
     //! of the black border of the laptop and the marker may be bigger. Using tud_img_prep is possible to
