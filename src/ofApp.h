@@ -38,7 +38,7 @@ public:
 
     //marker related variables and methods
     enum marker_family_enum_ { whycon, aruco_single, aruco_multi, pitag};
-    void set_marker(int marker_family, int marker_size, int marker_id, int message_id);
+    void set_marker(int marker_family, double marker_size, int marker_id, int message_id);
     void set_marker_response(bool result, std::string message, int message_id);
 
     ofImage aruco_single_ID88_;
@@ -47,9 +47,10 @@ public:
     ofImage whycon_ID00_;
     int marker_family_ = whycon;
     int marker_id_ = 88;
-    int marker_size_ = MARKER_BASE_SIZE;
+    double marker_size_ = MARKER_BASE_SIZE;
     //float pixel_pitch_mm_ = 0.270; // in milimeters (RIKER) at max resolution
     float pixel_pitch_mm_ = 0.1211; // in milimeters (ATLAS) at max resolution
+    int iters=0;
 
     ofxLibwebsockets::Client client;
 };

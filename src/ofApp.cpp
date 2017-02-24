@@ -44,23 +44,30 @@ void ofApp::draw(){
         }
 
     } else if (marker_family_ == aruco_multi){
-        int marker_size_pixels = marker_size_ / pixel_pitch_mm_;
-        float size_squares = 0.0698*1000/ pixel_pitch_mm_; //px
+        //float size_squares = 0.0698; //m
         int n_squares_x = 5 ;
-        int n_squares_y = 3 ;
-        int inter_square_sep = 0.01*1000/ pixel_pitch_mm_;//px
+        int n_squares_y = 5 ;
+        float inter_square_sep = 20.0; // mm
+        float s = marker_size_/(100.0);
+        
+        float total_width = n_squares_x*marker_size_+(n_squares_x-1)*inter_square_sep*s;
+        float total_height = n_squares_y*marker_size_+(n_squares_y-1)*inter_square_sep*s;
 
-        float s = marker_size_pixels/size_squares;
+        int total_width_px = total_width / pixel_pitch_mm_;
+        int total_height_px = total_height / pixel_pitch_mm_;
+        
+        int posx = (ofGetWindowWidth()/2)-total_width_px/2;
+        int posy = (ofGetWindowHeight()/2)-total_height_px/2;
 
-        //int size_squares = marker_size_pixels;
-        float total_width = n_squares_x*marker_size_pixels+(n_squares_x-1)*inter_square_sep*s;
-        float total_height = n_squares_y*marker_size_pixels+(n_squares_y-1)*inter_square_sep*s;
-        int posx = (ofGetWindowWidth()/2)-total_width/2;
-        int posy = (ofGetWindowHeight()/2)-total_height/2;
+        iters++;
 
-
-
-        aruco_multi_.draw(posx, posy, total_width, total_height);
+        ofPushMatrix();
+            ofTranslate((ofGetWindowWidth()/2), (ofGetWindowHeight()/2),0);
+            ofRotate(iters*0.15); //! TODO add this as a paramater
+            ofPushMatrix();
+                aruco_multi_.draw(-total_width_px/2, -total_height_px/2, total_width_px, total_height_px);
+            ofPopMatrix();
+        ofPopMatrix();
         //!TODO implement ID selection
 
     } else{
@@ -102,7 +109,7 @@ void ofApp::onMessage( ofxLibwebsockets::Event& args ){
                 Json::Value msg = args.json.get("msg", "error");
 
                 int marker_family = msg["marker_family"].asInt();
-                int marker_size  = msg["marker_size"].asDouble()*1000; //from meters to milimiters
+                double marker_size  = msg["marker_size"].asDouble()*1000; //from meters to milimiters
                 int marker_id = msg["marker_id"].asInt();
                 int message_id = msg["message_id"].asInt();
 
@@ -141,7 +148,7 @@ void ofApp::topicAdvertise(std::string topic, std::string type){
 }
 
 //--------------------------------------------------------------
-void ofApp::set_marker(int marker_family, int marker_size, int marker_id, int message_id){
+void ofApp::set_marker(int marker_family, double marker_size, int marker_id, int message_id){
     bool result = true;
     std::string message = "OK";
     float max_width_mm = pixel_pitch_mm_*ofGetWindowWidth();
@@ -163,7 +170,7 @@ void ofApp::set_marker(int marker_family, int marker_size, int marker_id, int me
     //! invert the colors again
 
 
-    float max_size = std::min(max_width_mm,max_height_mm)-10;
+    float max_size = 150.001;
     if (marker_size >= max_size){
         marker_size = max_size;
         result = false;
