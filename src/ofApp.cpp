@@ -44,8 +44,17 @@ void ofApp::draw(){
         }
 
     } else if (marker_family_ == aruco_multi){
+        //float size_squares = 0.0698; //m
+        int n_squares_x = 5 ;
+        int n_squares_y = 3 ;
+        int inter_square_sep = 10.0/ pixel_pitch_mm_;
 
-        aruco_multi_.draw(posx, posy, marker_size_pixels, marker_size_pixels);
+        int size_squares = marker_size_pixels;
+        float total_width = n_squares_x*size_squares+(n_squares_x-1)*inter_square_sep;
+        float total_height = n_squares_y*size_squares+(n_squares_y-1)*inter_square_sep;
+
+
+        aruco_multi_.draw(posx, posy, total_width, total_height);
         //!TODO implement ID selection
 
     } else{
