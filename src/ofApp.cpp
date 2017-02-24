@@ -44,19 +44,20 @@ void ofApp::draw(){
         }
 
     } else if (marker_family_ == aruco_multi){
-        //float size_squares = 0.0698; //m
+        int marker_size_pixels = marker_size_ / pixel_pitch_mm_;
+        float size_squares = 0.0698*1000/ pixel_pitch_mm_; //px
         int n_squares_x = 5 ;
-        int n_squares_y = 5 ;
-        int inter_square_sep = 20.0/ pixel_pitch_mm_;
+        int n_squares_y = 3 ;
+        int inter_square_sep = 0.01*1000/ pixel_pitch_mm_;//px
 
+        float s = marker_size_pixels/size_squares;
 
-
-        int size_squares = marker_size_pixels;
-        float total_width = n_squares_x*size_squares+(n_squares_x-1)*inter_square_sep;
-        float total_height = n_squares_y*size_squares+(n_squares_y-1)*inter_square_sep;
-
+        //int size_squares = marker_size_pixels;
+        float total_width = n_squares_x*marker_size_pixels+(n_squares_x-1)*inter_square_sep*s;
+        float total_height = n_squares_y*marker_size_pixels+(n_squares_y-1)*inter_square_sep*s;
         int posx = (ofGetWindowWidth()/2)-total_width/2;
         int posy = (ofGetWindowHeight()/2)-total_height/2;
+
 
 
         aruco_multi_.draw(posx, posy, total_width, total_height);
