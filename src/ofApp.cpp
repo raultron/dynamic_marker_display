@@ -4,7 +4,7 @@
 void ofApp::setup(){
     aruco_single_ID88_.load("images/aruco_34x34cm_ID88.png");
     aruco_single_ID00_.load("images/aruco_34x34cm_ID00.jpg");
-    aruco_multi_.load("images/aruco_34x34cm_ID88.png");
+    aruco_multi_.load("images/aruco_multi.png");
     whycon_ID00_.load("images/whycon_outer150_inner70.png");
     ofBackground(255,255,255);
     ofSetFrameRate(60); // if vertical sync is off, we can go a bit fast... this caps the framerate at 60fps.
