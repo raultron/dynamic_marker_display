@@ -45,11 +45,11 @@ public:
     ofImage aruco_single_ID00_;
     ofImage aruco_multi_;
     ofImage whycon_ID00_;
-    int marker_family_ = aruco_single;
-    int marker_id_ = 00;
+    int marker_family_ = whycon;
+    int marker_id_ = 88;
     int marker_size_ = MARKER_BASE_SIZE;
-    float pixel_pitch_mm_ = 0.270; // in milimeters (RIKER) at max resolution
-    //float pixel_pitch_mm_ = 0.1211; // in milimeters (ATLAS) at max resolution
+    //float pixel_pitch_mm_ = 0.270; // in milimeters (RIKER) at max resolution
+    float pixel_pitch_mm_ = 0.1211; // in milimeters (ATLAS) at max resolution
 
     ofxLibwebsockets::Client client;
 };
