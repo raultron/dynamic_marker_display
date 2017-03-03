@@ -13,6 +13,7 @@ void ofApp::setup(){
     client.addListener(this);
     topicSubscribe("/dynamic_marker/set_marker", "dynamic_marker/set_marker");
     topicAdvertise("/dynamic_marker/set_marker_response", "dynamic_marker/set_marker_response");
+    rotation_time = ofGetElapsedTimef();
 }
 
 //--------------------------------------------------------------
@@ -59,11 +60,20 @@ void ofApp::draw(){
         int posx = (ofGetWindowWidth()/2)-total_width_px/2;
         int posy = (ofGetWindowHeight()/2)-total_height_px/2;
 
-        iters++;
-        bool rotate_enabled = false;
+
+        bool rotate_enabled = true;
         ofPushMatrix();
             ofTranslate((ofGetWindowWidth()/2), (ofGetWindowHeight()/2),0);
             if(rotate_enabled){
+
+                if( ofGetElapsedTimef() - rotation_time > 15 ){
+                   rotation_dir = -rotation_dir;
+                   rotation_time = ofGetElapsedTimef();
+                }
+
+                iters = iters + rotation_dir;
+
+
                 ofRotate(iters*0.15); //! TODO add this as a paramater
             }
             ofPushMatrix();

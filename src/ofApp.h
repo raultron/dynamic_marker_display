@@ -51,6 +51,9 @@ public:
     //float pixel_pitch_mm_ = 0.270; // in milimeters (RIKER) at max resolution
     float pixel_pitch_mm_ = 0.1211; // in milimeters (ATLAS) at max resolution
     int iters=0;
+    int rotation_dir = 1;
+    float rotation_time = 0;
+
 
     ofxLibwebsockets::Client client;
 };
