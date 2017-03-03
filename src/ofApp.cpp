@@ -60,10 +60,12 @@ void ofApp::draw(){
         int posy = (ofGetWindowHeight()/2)-total_height_px/2;
 
         iters++;
-
+        bool rotate_enabled = false;
         ofPushMatrix();
             ofTranslate((ofGetWindowWidth()/2), (ofGetWindowHeight()/2),0);
-            ofRotate(iters*0.15); //! TODO add this as a paramater
+            if(rotate_enabled){
+                ofRotate(iters*0.15); //! TODO add this as a paramater
+            }
             ofPushMatrix();
                 aruco_multi_.draw(-total_width_px/2, -total_height_px/2, total_width_px, total_height_px);
             ofPopMatrix();
@@ -170,7 +172,7 @@ void ofApp::set_marker(int marker_family, double marker_size, int marker_id, int
     //! invert the colors again
 
 
-    float max_size = 150.001;
+    float max_size = MARKER_BASE_SIZE + 0.001;
     if (marker_size >= max_size){
         marker_size = max_size;
         result = false;
