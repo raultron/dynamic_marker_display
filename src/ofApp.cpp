@@ -5,6 +5,7 @@ void ofApp::setup(){
     aruco_single_ID88_.load("images/aruco_34x34cm_ID88.png");
     aruco_single_ID00_.load("images/aruco_34x34cm_ID00.jpg");
     aruco_multi_.load("images/aruco_multi.png");
+    aruco_board_c3po_.load("images/c3po_board.png");
     whycon_ID00_.load("images/whycon_outer150_inner70.png");
     ofBackground(255,255,255);
     ofSetFrameRate(60); // if vertical sync is off, we can go a bit fast... this caps the framerate at 60fps.
@@ -78,6 +79,45 @@ void ofApp::draw(){
             }
             ofPushMatrix();
                 aruco_multi_.draw(-total_width_px/2, -total_height_px/2, total_width_px, total_height_px);
+            ofPopMatrix();
+        ofPopMatrix();
+        //!TODO implement ID selection
+
+    } else if (marker_family_ == aruco_board_c3po){
+        //float size_squares = 0.0698; //m
+        int n_squares_x = 2 ;
+        int n_squares_y = 2 ;
+        float inter_square_sep = 25.0; // mm
+        float marker_size = 130;
+        float s = marker_size/(100.0);
+
+        float total_width = n_squares_x*marker_size+(n_squares_x-1)*inter_square_sep*s;
+        float total_height = n_squares_y*marker_size+(n_squares_y-1)*inter_square_sep*s;
+
+        int total_width_px = total_width / pixel_pitch_mm_H;
+        int total_height_px = total_height / pixel_pitch_mm_V;
+
+        int posx = (ofGetWindowWidth()/2)-total_width_px/2;
+        int posy = (ofGetWindowHeight()/2)-total_height_px/2;
+
+
+        bool rotate_enabled = false;
+        ofPushMatrix();
+            ofTranslate((ofGetWindowWidth()/2), (ofGetWindowHeight()/2),0);
+            if(rotate_enabled){
+
+                if( ofGetElapsedTimef() - rotation_time > 15 ){
+                   rotation_dir = -rotation_dir;
+                   rotation_time = ofGetElapsedTimef();
+                }
+
+                iters = iters + rotation_dir;
+
+
+                ofRotate(iters*0.15); //! TODO add this as a paramater
+            }
+            ofPushMatrix();
+                aruco_board_c3po_.draw(-total_width_px/2, -total_height_px/2, total_width_px, total_height_px);
             ofPopMatrix();
         ofPopMatrix();
         //!TODO implement ID selection
